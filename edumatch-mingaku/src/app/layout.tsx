@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
+import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
 
 const notoSansJP = Noto_Sans_JP({
   variable: "--font-noto-sans-jp",
@@ -14,10 +16,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "EduMatch Mingaku",
-    template: "%s | EduMatch Mingaku",
+    default: "Edumatch - 教育の未来を見つける、つながる",
+    template: "%s | Edumatch",
   },
-  description: "Learn and grow with EduMatch.",
+  description:
+    "教育現場とEdTechをつなぐマッチングプラットフォーム。最新の教育事例やEdTechツールを探せます。",
 };
 
 export default function RootLayout({
@@ -28,9 +31,13 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body
-        className={`${notoSansJP.variable} ${geistMono.variable} antialiased`}
+        className={`${notoSansJP.variable} ${geistMono.variable} antialiased font-sans`}
       >
-        {children}
+        <div className="flex min-h-screen flex-col">
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </div>
       </body>
     </html>
   );
