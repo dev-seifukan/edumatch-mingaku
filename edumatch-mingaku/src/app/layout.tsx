@@ -3,6 +3,8 @@ import { Geist_Mono, Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
+import { SideMenu } from "@/components/layout/side-menu";
+import { ChatbotWidget } from "@/components/layout/chatbot-widget";
 
 const notoSansJP = Noto_Sans_JP({
   variable: "--font-noto-sans-jp",
@@ -35,9 +37,21 @@ export default function RootLayout({
       >
         <div className="flex min-h-screen flex-col">
           <Header />
-          <main className="flex-1">{children}</main>
+          <div className="flex-1 flex">
+            {/* Desktop: left menu (not fixed) */}
+            <aside className="hidden lg:block lg:w-64 lg:p-4 lg:pt-6 lg:flex-shrink-0">
+              <div className="sticky top-20">
+                <SideMenu />
+              </div>
+            </aside>
+
+            <main className="flex-1">
+              <div className="px-0 lg:px-4">{children}</div>
+            </main>
+          </div>
           <Footer />
         </div>
+        <ChatbotWidget />
       </body>
     </html>
   );

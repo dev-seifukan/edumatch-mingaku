@@ -21,8 +21,9 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center space-x-2">
+        <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
           <span className="text-2xl font-bold text-primary">Edumatch</span>
+          <span className="text-xs text-muted-foreground hidden sm:inline">（ホーム）</span>
         </Link>
 
         {/* Desktop Navigation */}
