@@ -31,6 +31,46 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### デプロイ手順
+
+1. **GitHubリポジトリにプッシュ**
+   ```bash
+   git add .
+   git commit -m "Prepare for Vercel deployment"
+   git push origin main
+   ```
+
+2. **Vercelにプロジェクトをインポート**
+   - [Vercel](https://vercel.com)にアクセス
+   - GitHubアカウントでログイン
+   - "Add New..." → "Project" をクリック
+   - GitHubリポジトリ `dev-seifukan/edumatch-mingaku` を選択
+   - "Import" をクリック
+
+3. **環境変数の設定**
+   - Vercelのプロジェクト設定画面で "Environment Variables" に移動
+   - 以下の環境変数を追加：
+     - `NEXT_PUBLIC_SUPABASE_URL` (SupabaseプロジェクトのURL)
+     - `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Supabaseの匿名キー)
+   - 各環境（Production, Preview, Development）に設定
+
+4. **デプロイ**
+   - "Deploy" をクリック
+   - ビルドが完了すると自動的にデプロイされます
+
+### 環境変数の設定
+
+`.env.local.example` を参考に、Vercelの環境変数設定画面で以下を設定してください：
+
+```
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+### 注意事項
+
+- Vercelは自動的にNext.jsを検出し、最適な設定でビルドします
+- `vercel.json` でリージョンを `nrt1` (東京) に設定しています
+- 環境変数は `.env.local` ファイルではなく、Vercelのダッシュボードで設定してください
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
