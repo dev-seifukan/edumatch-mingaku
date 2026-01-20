@@ -1,96 +1,166 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Tag, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Calendar, Tag, ArrowLeft, Share2, Clock, User } from "lucide-react";
 
-const demoArticles = [
-  {
-    id: 1,
-    title: "ICT活用で実現する授業改善の新しいカタチ",
-    image: "https://placehold.co/600x360/e2e8f0/334155?text=Demo+Article+1",
+export default function ArticleDemoPage() {
+  const article = {
+    id: "demo",
+    title: "EdTechツール選びの完全ガイド：2024年最新版",
+    content: `
+# EdTechツール選びの完全ガイド：2024年最新版
+
+教育現場でEdTechツールを導入する際、数多くの選択肢から最適なものを選ぶのは簡単ではありません。本記事では、実践的な選び方のポイントを解説します。
+
+## 1. 導入目的を明確にする
+
+まず、なぜEdTechツールを導入するのか、その目的を明確にすることが重要です。
+
+- **学習管理の効率化**: 授業準備や進捗管理を効率化したい
+- **保護者とのコミュニケーション改善**: 連絡事項の伝達をスムーズにしたい
+- **データ分析による教育改善**: 学習データを活用して指導を改善したい
+- **業務の自動化**: 採点や事務作業を自動化したい
+
+目的が明確になれば、必要な機能も自然と見えてきます。
+
+## 2. 予算とコストを検討する
+
+EdTechツールには、初期費用や月額費用がかかります。予算を事前に決めておくことで、選択肢を絞り込めます。
+
+### コストの内訳
+
+- **初期導入費用**: セットアップや研修にかかる費用
+- **月額・年額の利用料**: 継続的な利用料金
+- **追加機能のオプション費用**: 必要に応じて追加する機能の費用
+- **サポート費用**: 専任サポートや優先サポートの費用
+- **研修・トレーニング費用**: 教員向けの研修費用
+
+## 3. 機能と使いやすさを比較する
+
+同じカテゴリのツールでも、機能や使いやすさは大きく異なります。
+
+### チェックポイント
+
+- ✅ 必要な機能が揃っているか
+- ✅ 直感的に使えるUIか
+- ✅ モバイル対応しているか
+- ✅ 既存システムとの連携は可能か
+- ✅ 日本語対応は十分か
+
+## 4. サポート体制を確認する
+
+導入後のサポート体制も重要なポイントです。
+
+- **問い合わせ対応の方法**: メール、電話、チャットなど
+- **サポートの対応時間**: 営業時間内か、24時間対応か
+- **マニュアルやドキュメントの充実度**: わかりやすい資料があるか
+- **コミュニティやフォーラムの有無**: ユーザー同士で情報交換できるか
+
+## 5. 無料トライアルを活用する
+
+多くのEdTechツールは無料トライアルを提供しています。実際に使ってみることで、使いやすさや機能を確認できます。
+
+### トライアル時の確認ポイント
+
+1. 実際の業務フローで使ってみる
+2. 複数の教員で試してみる
+3. サポートの対応速度を確認する
+4. データのエクスポート方法を確認する
+
+## まとめ
+
+EdTechツール選びは、目的の明確化から始まり、予算・機能・サポート体制を総合的に判断することが重要です。無料トライアルを積極的に活用し、実際の使用感を確認してから導入を決めることをおすすめします。
+
+Edumatchでは、500以上のEdTechサービスを比較・検討できます。ぜひご活用ください。
+    `,
+    image: "https://placehold.co/800x450/fef3c7/ca8a04?text=EdTech+Guide+2024",
     category: "教育ICT",
-    date: "2024-01-12",
-    tags: ["ICT", "授業改善"],
-  },
-  {
-    id: 2,
-    title: "導入事例：タブレット活用で学習効果が向上",
-    image: "https://placehold.co/600x360/f1f5f9/0f172a?text=Demo+Article+2",
-    category: "導入事例",
-    date: "2024-01-10",
-    tags: ["事例", "タブレット"],
-  },
-  {
-    id: 3,
-    title: "学校運営を効率化するクラウドツール活用術",
-    image: "https://placehold.co/600x360/e2e8f0/334155?text=Demo+Article+3",
-    category: "学校運営",
-    date: "2024-01-08",
-    tags: ["運営", "クラウド"],
-  },
-];
+    date: "2024-01-15",
+    readTime: "10分",
+    tags: ["EdTech", "選び方", "導入", "ガイド"],
+    author: "Edumatch編集部",
+  };
 
-export default function ArticlesDemoPage() {
   return (
-    <div className="container py-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">記事ページのデモ</h1>
-          <p className="text-muted-foreground">
-            記事の見せ方やレイアウトのサンプルです
-          </p>
-        </div>
-        <Link
-          href="/articles"
-          className="text-sm text-primary hover:underline"
-        >
-          記事一覧を見る
-        </Link>
+    <div className="container py-8">
+      <div className="mb-6">
+        <Button variant="ghost" asChild>
+          <Link href="/articles">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            記事一覧に戻る
+          </Link>
+        </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {demoArticles.map((article) => (
-          <Card key={article.id} className="overflow-hidden">
-            <div className="relative h-40 w-full">
-              <Image
-                src={article.image}
-                alt={article.title}
-                fill
-                className="object-cover"
-                unoptimized
-              />
+      <article className="max-w-4xl mx-auto">
+        {/* ヘッダー */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Badge variant="secondary">{article.category}</Badge>
+            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+              <Calendar className="h-4 w-4" />
+              {new Date(article.date).toLocaleDateString("ja-JP")}
             </div>
-            <CardContent className="p-4">
-              <Badge variant="secondary" className="mb-2">
-                {article.category}
-              </Badge>
-              <h3 className="font-semibold mb-2 line-clamp-2">
-                {article.title}
-              </h3>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-                <Calendar className="h-3 w-3" />
-                {new Date(article.date).toLocaleDateString("ja-JP")}
-              </div>
-              <div className="flex flex-wrap gap-1 mb-3">
-                {article.tags.map((tag) => (
-                  <Badge key={tag} variant="outline" className="text-xs">
-                    <Tag className="h-3 w-3 mr-1" />
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-              <Link
-                href={`/articles/${article.id}`}
-                className="text-sm text-primary hover:underline inline-flex items-center gap-1"
-              >
-                記事を読む
-                <ArrowRight className="h-3 w-3" />
-              </Link>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+              <Clock className="h-4 w-4" />
+              {article.readTime}
+            </div>
+          </div>
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">
+            {article.title}
+          </h1>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <User className="h-4 w-4" />
+              {article.author}
+            </div>
+            <Button variant="outline" size="sm">
+              <Share2 className="h-4 w-4 mr-2" />
+              共有
+            </Button>
+          </div>
+        </div>
+
+        {/* メイン画像 */}
+        <div className="relative h-96 w-full mb-8 rounded-lg overflow-hidden">
+          <Image
+            src={article.image}
+            alt={article.title}
+            fill
+            className="object-cover"
+            unoptimized
+          />
+        </div>
+
+        {/* タグ */}
+        <div className="flex flex-wrap gap-2 mb-8">
+          {article.tags.map((tag) => (
+            <Badge key={tag} variant="outline" className="flex items-center gap-1">
+              <Tag className="h-3 w-3" />
+              {tag}
+            </Badge>
+          ))}
+        </div>
+
+        {/* 本文 */}
+        <div className="prose prose-slate max-w-none mb-8">
+          <div className="whitespace-pre-wrap text-foreground leading-relaxed">
+            {article.content}
+          </div>
+        </div>
+
+        {/* デモページの説明 */}
+        <Card className="mt-12 border-primary/20 bg-primary/5">
+          <CardContent className="p-6">
+            <h2 className="text-xl font-bold mb-2">デモページについて</h2>
+            <p className="text-muted-foreground">
+              このページは記事詳細ページのデモです。実際の記事ページと同じレイアウトと機能を持っています。
+            </p>
+          </CardContent>
+        </Card>
+      </article>
     </div>
   );
 }

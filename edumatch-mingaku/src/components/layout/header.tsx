@@ -38,13 +38,13 @@ export function Header() {
             </Link>
           ))}
           <Link
-            href="/login"
+            href="/auth/login"
             className="text-sm font-medium text-foreground/60 transition-colors hover:text-foreground"
           >
             ログイン
           </Link>
           <Button asChild size="sm">
-            <Link href="/signup">無料登録</Link>
+            <Link href="/auth/login">無料登録</Link>
           </Button>
         </nav>
 
@@ -71,13 +71,13 @@ export function Header() {
                 </Link>
               ))}
               <Link
-                href="/login"
+                href="/auth/login"
                 className="text-sm font-medium text-foreground/60 transition-colors hover:text-foreground"
               >
                 ログイン
               </Link>
               <Button asChild className="w-full">
-                <Link href="/signup">無料登録</Link>
+                <Link href="/auth/login">無料登録</Link>
               </Button>
             </nav>
           </SheetContent>

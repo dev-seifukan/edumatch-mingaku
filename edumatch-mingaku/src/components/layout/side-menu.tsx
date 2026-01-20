@@ -10,23 +10,40 @@ import {
   CreditCard,
   FilePlus2,
   FileBadge2,
+  Star,
+  Calendar,
+  Briefcase,
+  LayoutDashboard,
+  User,
+  LogIn,
+  Gift,
+  Sparkles,
+  Users,
+  Scale,
 } from "lucide-react";
 
 const items = [
   { href: "/", label: "ホーム", icon: Home },
   { href: "/services", label: "サービスを探す", icon: Search },
   { href: "/articles", label: "記事一覧", icon: Newspaper },
-  { href: "/communication", label: "コミュニケーション", icon: MessageCircle },
-  { href: "/assessment", label: "評価・分析", icon: FileText },
+  // { href: "/reviews", label: "レビュー一覧", icon: Star }, // Phase 2
+  { href: "/cases", label: "導入事例", icon: Briefcase },
+  // { href: "/events", label: "イベント", icon: Calendar }, // Phase 2
   { href: "/companies", label: "掲載企業一覧", icon: Building2 },
   { href: "/help", label: "ヘルプ", icon: HelpCircle },
 ];
 
 const demos = [
-  { href: "/request-info", label: "資料請求（デモ）", icon: FileBadge2 },
-  { href: "/billing", label: "課金（デモ）", icon: CreditCard },
-  { href: "/articles/new", label: "記事投稿（デモ）", icon: FilePlus2 },
-  { href: "/articles/demo", label: "記事ページ（デモ）", icon: FileText },
+  { href: "/articles/demo", label: "記事デモ", icon: FileText },
+  { href: "/services/demo", label: "サービスデモ", icon: Search },
+  { href: "/dashboard", label: "マイダッシュボード", icon: LayoutDashboard },
+  { href: "/auth/login", label: "ログイン/登録", icon: LogIn },
+  // { href: "/recommend", label: "レコメンド", icon: Sparkles }, // Phase 2
+  { href: "/compare", label: "サービス比較", icon: Scale },
+  { href: "/talent", label: "人材検索", icon: Users },
+  { href: "/request-info", label: "資料請求", icon: FileBadge2 },
+  { href: "/plans", label: "プラン選択", icon: CreditCard },
+  // { href: "/articles/new", label: "記事投稿", icon: FilePlus2 }, // Phase 2
 ];
 
 export function SideMenu() {
