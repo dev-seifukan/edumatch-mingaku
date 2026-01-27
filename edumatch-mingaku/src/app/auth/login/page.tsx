@@ -9,12 +9,15 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Mail, Lock, User, Building2, Chrome, Loader2 } from "lucide-react";
+import { Mail, Lock, User, Building2, Chrome, Loader2, BookOpen, School } from "lucide-react";
 import { toast } from "sonner";
+
+type UserType = "viewer" | "provider";
 
 function AuthLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [userType, setUserType] = useState<UserType | null>(null);
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [registerName, setRegisterName] = useState("");
@@ -31,6 +34,12 @@ function AuthLoginForm() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!userType) {
+      setError("アカウントタイプを選択してください");
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
@@ -41,6 +50,7 @@ function AuthLoginForm() {
         body: JSON.stringify({
           email: loginEmail,
           password: loginPassword,
+          userType,
         }),
       });
 
@@ -64,6 +74,12 @@ function AuthLoginForm() {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!userType) {
+      setError("アカウントタイプを選択してください");
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
@@ -74,6 +90,13 @@ function AuthLoginForm() {
     }
 
     try {
+      // 投稿者の場合は組織名必須
+      if (userType === "provider" && !registerOrg) {
+        setError("企業名・学校名を入力してください");
+        setIsLoading(false);
+        return;
+      }
+
       const response = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -82,6 +105,7 @@ function AuthLoginForm() {
           password: registerPassword,
           name: registerName,
           organization: registerOrg || null,
+          userType,
         }),
       });
 
@@ -112,13 +136,76 @@ function AuthLoginForm() {
 
   return (
     <div className="container py-8">
-      <div className="max-w-md mx-auto">
+      <div className="max-w-lg mx-auto">
+        {/* ユーザータイプ選択 */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-center mb-4">Edumatchへようこそ</h1>
+          <p className="text-center text-muted-foreground mb-6">
+            ご利用目的を選択してください
+          </p>
+          <div className="grid grid-cols-2 gap-4">
+            <button
+              type="button"
+              onClick={() => setUserType("viewer")}
+              className={`p-6 rounded-lg border-2 transition-all ${
+                userType === "viewer"
+                  ? "border-primary bg-primary/5"
+                  : "border-muted hover:border-primary/50"
+              }`}
+            >
+              <div className="flex flex-col items-center gap-3">
+                <div className={`p-3 rounded-full ${
+                  userType === "viewer" ? "bg-primary/10" : "bg-muted"
+                }`}>
+                  <BookOpen className={`h-6 w-6 ${
+                    userType === "viewer" ? "text-primary" : "text-muted-foreground"
+                  }`} />
+                </div>
+                <div className="text-center">
+                  <p className={`font-semibold ${
+                    userType === "viewer" ? "text-primary" : "text-foreground"
+                  }`}>
+                    閲覧者として利用
+                  </p>
+                </div>
+              </div>
+            </button>
+            <button
+              type="button"
+              onClick={() => setUserType("provider")}
+              className={`p-6 rounded-lg border-2 transition-all ${
+                userType === "provider"
+                  ? "border-primary bg-primary/5"
+                  : "border-muted hover:border-primary/50"
+              }`}
+            >
+              <div className="flex flex-col items-center gap-3">
+                <div className={`p-3 rounded-full ${
+                  userType === "provider" ? "bg-primary/10" : "bg-muted"
+                }`}>
+                  <School className={`h-6 w-6 ${
+                    userType === "provider" ? "text-primary" : "text-muted-foreground"
+                  }`} />
+                </div>
+                <div className="text-center">
+                  <p className={`font-semibold ${
+                    userType === "provider" ? "text-primary" : "text-foreground"
+                  }`}>
+                    投稿者として利用
+                  </p>
+                </div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* ユーザータイプが選択された場合のみフォームを表示 */}
+        {userType && (
         <Card>
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Edumatchへようこそ</CardTitle>
-            <p className="text-muted-foreground">
-              教育の未来を見つける、つながる
-            </p>
+            <CardTitle className="text-xl">
+              {userType === "viewer" ? "閲覧者として利用" : "投稿者として利用"}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="login" className="w-full">
@@ -211,7 +298,7 @@ function AuthLoginForm() {
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
-                      placeholder="お名前"
+                      placeholder={userType === "provider" ? "担当者名" : "お名前"}
                       value={registerName}
                       onChange={(e) => setRegisterName(e.target.value)}
                       className="pl-10"
@@ -219,6 +306,22 @@ function AuthLoginForm() {
                       disabled={isLoading}
                     />
                   </div>
+                  
+                  {/* 投稿者の場合は組織名必須 */}
+                  {userType === "provider" && (
+                    <div className="relative">
+                      <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="企業名・学校名（必須）"
+                        value={registerOrg}
+                        onChange={(e) => setRegisterOrg(e.target.value)}
+                        className="pl-10"
+                        required
+                        disabled={isLoading}
+                      />
+                    </div>
+                  )}
+
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -244,16 +347,20 @@ function AuthLoginForm() {
                       disabled={isLoading}
                     />
                   </div>
-                  <div className="relative">
-                    <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="学校名・組織名（任意）"
-                      value={registerOrg}
-                      onChange={(e) => setRegisterOrg(e.target.value)}
-                      className="pl-10"
-                      disabled={isLoading}
-                    />
-                  </div>
+
+                  {/* 閲覧者の場合のみ組織名は任意 */}
+                  {userType === "viewer" && (
+                    <div className="relative">
+                      <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="学校名・組織名（任意）"
+                        value={registerOrg}
+                        onChange={(e) => setRegisterOrg(e.target.value)}
+                        className="pl-10"
+                        disabled={isLoading}
+                      />
+                    </div>
+                  )}
                   <div className="text-sm">
                     <label className="flex items-start gap-2 cursor-pointer">
                       <input
@@ -282,7 +389,7 @@ function AuthLoginForm() {
                         登録中...
                       </>
                     ) : (
-                      "無料会員登録"
+                      userType === "provider" ? "投稿者として登録" : "無料会員登録"
                     )}
                   </Button>
                 </form>
@@ -305,10 +412,22 @@ function AuthLoginForm() {
                     Googleで登録
                   </Button>
                 </div>
+
+                {userType === "provider" && (
+                  <div className="mt-4 p-3 rounded-md bg-blue-50 border border-blue-200 text-blue-700 text-sm">
+                    <p className="font-medium mb-1">投稿者アカウントの特典</p>
+                    <ul className="text-xs space-y-1">
+                      <li>• サービス・記事の掲載</li>
+                      <li>• 閲覧数・問い合わせの分析</li>
+                      <li>• 資料請求の管理</li>
+                    </ul>
+                  </div>
+                )}
               </TabsContent>
             </Tabs>
           </CardContent>
         </Card>
+        )}
       </div>
     </div>
   );

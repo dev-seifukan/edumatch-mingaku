@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password, name, organization } = await request.json();
+    const { email, password, name, organization, userType } = await request.json();
 
     if (!email || !password || !name) {
       return NextResponse.json(
@@ -20,6 +20,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 投稿者の場合は組織名必須
+    if (userType === "provider" && !organization) {
+      return NextResponse.json(
+        { error: "企業名・学校名を入力してください" },
+        { status: 400 }
+      );
+    }
+
     const supabase = await createClient();
 
     // Supabase Authでユーザーを作成
@@ -30,6 +38,7 @@ export async function POST(request: NextRequest) {
         data: {
           name,
           organization: organization || null,
+          role: userType === "provider" ? "PROVIDER" : "VIEWER",
         },
       },
     });
@@ -49,13 +58,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Profileテーブルにレコードを作成
+    const role = userType === "provider" ? "PROVIDER" : "VIEWER";
     try {
       await prisma.profile.create({
         data: {
           id: authData.user.id,
           name,
           email,
-          role: "VIEWER",
+          role,
           subscription_status: "INACTIVE",
         },
       });

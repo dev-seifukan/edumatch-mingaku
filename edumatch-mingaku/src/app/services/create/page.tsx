@@ -12,7 +12,6 @@ import { BlockEditor, ContentBlock } from "@/components/editor/block-editor";
 import { createService, uploadImage } from "@/app/_actions";
 import { Image as ImageIcon, Loader2, Save, Send, Building2, School } from "lucide-react";
 import { getCurrentUserProfile } from "@/app/_actions/user";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function ServiceCreatePage() {
   const router = useRouter();

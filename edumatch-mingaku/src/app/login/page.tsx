@@ -12,7 +12,6 @@ import {
   Mail, Lock, User, Building2, Loader2, AlertCircle, CheckCircle,
   BookOpen, School
 } from "lucide-react";
-import { createSupabaseBrowserClient } from "@/utils/supabase/client";
 import { toast } from "sonner";
 
 type UserType = "viewer" | "provider";
@@ -23,8 +22,8 @@ function LoginForm() {
   const redirectTo = searchParams.get("redirect_to") || "/dashboard";
   const message = searchParams.get("message");
 
-  // ユーザータイプ（閲覧者/提供者）
-  const [userType, setUserType] = useState<UserType>("viewer");
+  // ユーザータイプ（閲覧者/提供者）- 初期状態は未選択
+  const [userType, setUserType] = useState<UserType | null>(null);
 
   // ログイン用
   const [loginEmail, setLoginEmail] = useState("");
@@ -41,26 +40,37 @@ function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const supabase = createSupabaseBrowserClient();
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!userType) {
+      setError("アカウントタイプを選択してください");
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: loginEmail,
-        password: loginPassword,
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: loginEmail,
+          password: loginPassword,
+          userType,
+        }),
       });
 
-      if (error) {
-        if (error.message.includes("Invalid login credentials")) {
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (data.error.includes("Invalid login credentials") || data.error.includes("メールアドレス")) {
           setError("メールアドレスまたはパスワードが正しくありません");
-        } else if (error.message.includes("Email not confirmed")) {
+        } else if (data.error.includes("Email not confirmed")) {
           setError("メールアドレスの確認が完了していません。確認メールをご確認ください。");
         } else {
-          setError(error.message);
+          setError(data.error || "ログインに失敗しました");
         }
         setIsLoading(false);
         return;
@@ -79,6 +89,12 @@ function LoginForm() {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!userType) {
+      setError("アカウントタイプを選択してください");
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     setSuccess(null);
@@ -103,24 +119,25 @@ function LoginForm() {
     }
 
     try {
-      const { error } = await supabase.auth.signUp({
-        email: registerEmail,
-        password: registerPassword,
-        options: {
-          data: {
-            name: registerName,
-            organization: registerOrg || null,
-            role: userType === "provider" ? "PROVIDER" : "VIEWER",
-          },
-          emailRedirectTo: `${window.location.origin}/auth/callback?redirect_to=${encodeURIComponent(redirectTo)}`,
-        },
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: registerEmail,
+          password: registerPassword,
+          name: registerName,
+          organization: registerOrg || null,
+          userType,
+        }),
       });
 
-      if (error) {
-        if (error.message.includes("User already registered")) {
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (data.error.includes("User already registered") || data.error.includes("既に登録")) {
           setError("このメールアドレスは既に登録されています");
         } else {
-          setError(error.message);
+          setError(data.error || "会員登録に失敗しました");
         }
         setIsLoading(false);
         return;
@@ -173,9 +190,6 @@ function LoginForm() {
                   }`}>
                     閲覧者として利用
                   </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    記事やサービスを閲覧
-                  </p>
                 </div>
               </div>
             </button>
@@ -200,10 +214,7 @@ function LoginForm() {
                   <p className={`font-semibold ${
                     userType === "provider" ? "text-primary" : "text-foreground"
                   }`}>
-                    企業・学校として利用
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    サービスや記事を掲載
+                    投稿者として利用
                   </p>
                 </div>
               </div>
@@ -211,17 +222,13 @@ function LoginForm() {
           </div>
         </div>
 
+        {/* ユーザータイプが選択された場合のみフォームを表示 */}
+        {userType && (
         <Card>
           <CardHeader className="text-center">
             <CardTitle className="text-xl">
-              {userType === "viewer" ? "閲覧者アカウント" : "企業・学校アカウント"}
+              {userType === "viewer" ? "閲覧者として利用" : "投稿者として利用"}
             </CardTitle>
-            <CardDescription>
-              {userType === "viewer" 
-                ? "教育サービスや記事を閲覧できます" 
-                : "サービスや記事を掲載・管理できます"
-              }
-            </CardDescription>
           </CardHeader>
           <CardContent>
             {/* メッセージ表示 */}
@@ -419,6 +426,7 @@ function LoginForm() {
             </Tabs>
           </CardContent>
         </Card>
+        )}
       </div>
     </div>
   );
