@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { requireAuth } from "@/lib/auth";
-import { getServiceById } from "@/app/_actions";
+import { getServiceById, type ServiceWithProvider } from "@/app/_actions";
 import { getCurrentUserProfile } from "@/app/_actions";
 import { RequestInfoForm } from "./RequestInfoForm";
 
@@ -54,7 +54,7 @@ export default async function RequestInfoPage({ searchParams }: Props) {
     const services = await Promise.all(
       serviceIds.map((id) => getServiceById(id))
     );
-    const valid = services.filter(Boolean);
+    const valid = services.filter((s): s is ServiceWithProvider => s !== null);
     if (valid.length === 0) {
       return (
         <div className="container py-8">

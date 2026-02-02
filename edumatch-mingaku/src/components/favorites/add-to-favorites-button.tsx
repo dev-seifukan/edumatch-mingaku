@@ -2,7 +2,8 @@
 
 import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useFavorites, type FavoriteItem } from "./favorites-context";
+import { useFavorites } from "./favorites-context";
+import type { FavoriteItem } from "@/lib/favorites";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -15,14 +16,14 @@ type Props = {
     type: "article" | "service";
   };
   variant?: "icon" | "button";
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "lg";
   className?: string;
 };
 
 export function AddToFavoritesButton({
   item,
   variant = "button",
-  size = "md",
+  size,
   className,
 }: Props) {
   const { hasFavorite, toggleFavorite } = useFavorites();
