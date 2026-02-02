@@ -417,6 +417,7 @@ const DEMO_POSTS: PostWithProvider[] = [
     rejection_reason: null,
     created_at: new Date(Date.now() - 1000 * 60 * 60 * 2),
     updated_at: new Date(),
+    is_member_only: false,
     provider: { id: "demo-provider", name: "Edumatch編集部", avatar_url: null },
   },
   {
@@ -436,6 +437,7 @@ const DEMO_POSTS: PostWithProvider[] = [
     rejection_reason: null,
     created_at: new Date(Date.now() - 1000 * 60 * 60 * 24),
     updated_at: new Date(),
+    is_member_only: false,
     provider: { id: "demo-provider", name: "Edumatch編集部", avatar_url: null },
   },
   {
@@ -455,6 +457,7 @@ const DEMO_POSTS: PostWithProvider[] = [
     rejection_reason: null,
     created_at: new Date(Date.now() - 1000 * 60 * 60 * 48),
     updated_at: new Date(),
+    is_member_only: false,
     provider: { id: "demo-provider", name: "Edumatch編集部", avatar_url: null },
   },
   {
@@ -474,6 +477,7 @@ const DEMO_POSTS: PostWithProvider[] = [
     rejection_reason: null,
     created_at: new Date(Date.now() - 1000 * 60 * 60 * 72),
     updated_at: new Date(),
+    is_member_only: false,
     provider: { id: "demo-provider", name: "Edumatch編集部", avatar_url: null },
   },
   {
@@ -493,6 +497,7 @@ const DEMO_POSTS: PostWithProvider[] = [
     rejection_reason: null,
     created_at: new Date(Date.now() - 1000 * 60 * 60 * 96),
     updated_at: new Date(),
+    is_member_only: false,
     provider: { id: "demo-provider", name: "Edumatch編集部", avatar_url: null },
   },
 ];
