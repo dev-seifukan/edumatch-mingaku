@@ -155,7 +155,7 @@ const DEMO_SERVICES: ServiceWithProvider[] = [
     rejection_reason: null,
     created_at: new Date(Date.now() - 1000 * 60 * 60 * 48),
     updated_at: new Date(),
-    provider: { id: "demo-provider", name: "Classi株式会社", avatar_url: null },
+    provider: { id: "demo-provider", name: "Classi株式会社", email: "demo@example.com", avatar_url: null },
   },
   {
     id: "demo-service-3",
@@ -177,7 +177,7 @@ const DEMO_SERVICES: ServiceWithProvider[] = [
     rejection_reason: null,
     created_at: new Date(Date.now() - 1000 * 60 * 60 * 72),
     updated_at: new Date(),
-    provider: { id: "demo-provider", name: "atama plus株式会社", avatar_url: null },
+    provider: { id: "demo-provider", name: "atama plus株式会社", email: "demo@example.com", avatar_url: null },
   },
   {
     id: "demo-service-4",
@@ -199,7 +199,7 @@ const DEMO_SERVICES: ServiceWithProvider[] = [
     rejection_reason: null,
     created_at: new Date(Date.now() - 1000 * 60 * 60 * 96),
     updated_at: new Date(),
-    provider: { id: "demo-provider", name: "Google", avatar_url: null },
+    provider: { id: "demo-provider", name: "Google", email: "demo@example.com", avatar_url: null },
   },
   {
     id: "demo-service-5",
@@ -221,7 +221,7 @@ const DEMO_SERVICES: ServiceWithProvider[] = [
     rejection_reason: null,
     created_at: new Date(Date.now() - 1000 * 60 * 60 * 120),
     updated_at: new Date(),
-    provider: { id: "demo-provider", name: "株式会社LoiLo", avatar_url: null },
+    provider: { id: "demo-provider", name: "株式会社LoiLo", email: "demo@example.com", avatar_url: null },
   },
 ];
 
