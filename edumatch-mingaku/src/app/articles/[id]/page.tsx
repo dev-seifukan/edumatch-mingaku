@@ -10,6 +10,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { notFound } from "next/navigation";
 import { YouTubeEmbed } from "@/components/ui/youtube-embed";
 import { ArticleDetailActions } from "./article-detail-actions";
+import { ContentRenderer } from "@/components/ui/content-renderer";
 
 export const dynamic = "force-dynamic";
 
@@ -173,9 +174,7 @@ export default async function ArticleDetailPage({
 
         {/* 本文 */}
         <div className="prose prose-slate max-w-none mb-8">
-          <div className="whitespace-pre-wrap text-foreground leading-relaxed">
-            {post.content}
-          </div>
+          <ContentRenderer content={post.content} />
         </div>
 
         {/* 提供者情報 */}

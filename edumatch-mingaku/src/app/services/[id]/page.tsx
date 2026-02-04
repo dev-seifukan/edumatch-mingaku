@@ -10,6 +10,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { notFound } from "next/navigation";
 import { YouTubeEmbed } from "@/components/ui/youtube-embed";
 import { AddToRequestListServiceButton } from "./service-detail-actions";
+import { ContentRenderer } from "@/components/ui/content-renderer";
 
 export const dynamic = "force-dynamic";
 
@@ -160,9 +161,7 @@ export default async function ServiceDetailPage({
               </CardHeader>
               <CardContent className="p-6">
                 <div className="prose prose-slate max-w-none">
-                  <div className="whitespace-pre-wrap text-foreground leading-relaxed text-base">
-                    {service.content}
-                  </div>
+                  <ContentRenderer content={service.content} />
                 </div>
               </CardContent>
             </Card>
