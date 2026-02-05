@@ -28,28 +28,11 @@ export function RecommendationsSection({ services, articles }: RecommendationsSe
   const [recommendations, setRecommendations] = useState<RecommendedItem[]>([]);
 
   useEffect(() => {
-    if (favorites.length === 0) {
-      setRecommendations([]);
-      return;
-    }
-
-    // お気に入りのカテゴリーを分析
-    const favoriteCategories = analyzeFavoriteCategories(favorites);
-
-    if (favoriteCategories.length === 0) {
-      setRecommendations([]);
-      return;
-    }
-
-    // お気に入りに含まれていないアイテムで、カテゴリーが一致するものを抽出
+    // お気に入りに含まれていないアイテムを抽出（人気順で既にソート済み）
     const favoriteIds = new Set(favorites.map((f) => f.id));
 
     const recommendedServices = services
-      .filter(
-        (service) =>
-          !favoriteIds.has(service.id) &&
-          favoriteCategories.includes(service.category)
-      )
+      .filter((service) => !favoriteIds.has(service.id))
       .slice(0, 3)
       .map((service) => ({
         id: service.id,
@@ -60,11 +43,7 @@ export function RecommendationsSection({ services, articles }: RecommendationsSe
       }));
 
     const recommendedArticles = articles
-      .filter(
-        (article) =>
-          !favoriteIds.has(article.id) &&
-          favoriteCategories.includes(article.category)
-      )
+      .filter((article) => !favoriteIds.has(article.id))
       .slice(0, 3)
       .map((article) => ({
         id: article.id,
@@ -82,10 +61,7 @@ export function RecommendationsSection({ services, articles }: RecommendationsSe
     setRecommendations(allRecommendations);
   }, [favorites, services, articles]);
 
-  if (recommendations.length === 0) {
-    return null;
-  }
-
+  // 人気のコンテンツは常に表示（お気に入りの有無に関わらず）
   return (
     <Card className="border-2 border-primary/10 shadow-lg">
       <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 border-b">
@@ -93,9 +69,9 @@ export function RecommendationsSection({ services, articles }: RecommendationsSe
           <div className="p-2 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg">
             <Sparkles className="h-5 w-5 text-white" />
           </div>
-          あなたへのおすすめ
+          人気のコンテンツ
           <Badge variant="secondary" className="ml-2">
-            お気に入りから
+            みんなのおすすめ
           </Badge>
         </CardTitle>
       </CardHeader>
@@ -144,7 +120,7 @@ export function RecommendationsSection({ services, articles }: RecommendationsSe
         </div>
         <div className="mt-4 pt-4 border-t text-center">
           <p className="text-sm text-muted-foreground mb-3">
-            お気に入りが増えると、より精度の高いおすすめが表示されます
+            お気に入り数・資料請求リスト追加数が多い人気のコンテンツを表示しています
           </p>
           <div className="flex gap-2 justify-center">
             <Button variant="outline" size="sm" asChild>

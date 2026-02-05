@@ -7,6 +7,10 @@ import { useRequestList } from "./request-list-context";
 import type { RequestListItem } from "@/lib/request-list";
 import { toast } from "sonner";
 import { createBrowserClient } from "@supabase/ssr";
+import {
+  incrementServiceRequestCount,
+  decrementServiceRequestCount,
+} from "@/app/_actions/popularity";
 
 type Props = {
   item: RequestListItem;
@@ -57,6 +61,18 @@ export function AddToRequestListButton({
     }
 
     const added = toggle(item);
+
+    // サーバー側でカウントを更新
+    try {
+      if (added) {
+        await incrementServiceRequestCount(item.id);
+      } else {
+        await decrementServiceRequestCount(item.id);
+      }
+    } catch (error) {
+      console.error("Failed to update request count:", error);
+    }
+
     toast.success(
       added
         ? "資料請求リストに追加しました"

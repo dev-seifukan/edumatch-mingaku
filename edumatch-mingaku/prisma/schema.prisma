@@ -98,6 +98,9 @@ model Service {
   approved_at   DateTime?
   rejected_at   DateTime?
   rejection_reason String?
+  view_count    Int      @default(0) // 閲覧数
+  favorite_count Int     @default(0) // お気に入り数
+  request_count Int      @default(0) // 資料請求リスト追加数
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
   material_requests MaterialRequest[]
@@ -105,6 +108,8 @@ model Service {
   @@index([provider_id])
   @@index([category])
   @@index([status])
+  @@index([favorite_count])
+  @@index([request_count])
 }
 
 model Post {
@@ -116,7 +121,8 @@ model Post {
   thumbnail_url String?
   youtube_url   String?  // YouTube動画のURL
   images        String[] // 追加画像のURL配列
-  view_count    Int      @default(0)
+  view_count    Int      @default(0) // 閲覧数
+  favorite_count Int     @default(0) // お気に入り数
   is_published  Boolean  @default(false)
   is_member_only Boolean @default(false) // true=会員限定
   status        PublishStatus @default(DRAFT)
@@ -129,4 +135,5 @@ model Post {
 
   @@index([provider_id])
   @@index([status])
+  @@index([favorite_count])
 }

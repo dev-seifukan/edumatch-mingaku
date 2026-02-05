@@ -8,6 +8,12 @@ import type { FavoriteItem } from "@/lib/favorites";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { createBrowserClient } from "@supabase/ssr";
+import {
+  incrementServiceFavoriteCount,
+  decrementServiceFavoriteCount,
+  incrementArticleFavoriteCount,
+  decrementArticleFavoriteCount,
+} from "@/app/_actions/popularity";
 
 type Props = {
   item: {
@@ -72,6 +78,25 @@ export function AddToFavoritesButton({
     };
 
     const added = toggleFavorite(favoriteItem);
+
+    // サーバー側でカウントを更新
+    try {
+      if (item.type === "service") {
+        if (added) {
+          await incrementServiceFavoriteCount(item.id);
+        } else {
+          await decrementServiceFavoriteCount(item.id);
+        }
+      } else if (item.type === "article") {
+        if (added) {
+          await incrementArticleFavoriteCount(item.id);
+        } else {
+          await decrementArticleFavoriteCount(item.id);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to update favorite count:", error);
+    }
 
     if (added) {
       toast.success("お気に入りに追加しました");
