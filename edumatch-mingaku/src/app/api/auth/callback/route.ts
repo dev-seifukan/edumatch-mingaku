@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { getSiteOrigin } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
 
@@ -12,9 +13,8 @@ export async function GET(request: NextRequest) {
     const userType = searchParams.get("userType") || "viewer"; // viewer or provider
 
     if (!code) {
-      return NextResponse.redirect(
-        new URL("/login?error=oauth_error", request.url)
-      );
+      const origin = getSiteOrigin(new URL(request.url).origin);
+      return NextResponse.redirect(new URL("/login?error=oauth_error", origin));
     }
 
     const supabase = await createClient();
@@ -23,9 +23,8 @@ export async function GET(request: NextRequest) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (error || !data.user) {
-      return NextResponse.redirect(
-        new URL("/login?error=oauth_error", request.url)
-      );
+      const origin = getSiteOrigin(new URL(request.url).origin);
+      return NextResponse.redirect(new URL("/login?error=oauth_error", origin));
     }
 
     // Profileテーブルにレコードが存在するか確認
@@ -42,7 +41,8 @@ export async function GET(request: NextRequest) {
     // ロールを決定
     const expectedRole = userType === "provider" ? "PROVIDER" : "VIEWER";
 
-    const origin = new URL(request.url).origin;
+    // 本番ではNEXT_PUBLIC_SITE_URLを使用（localhostへ飛ばないようにする）
+    const origin = getSiteOrigin(new URL(request.url).origin);
 
     // Profileが存在しない場合は作成し、初回は必ずプロフィール設定（住所など）へ
     if (!existingProfile) {
@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
       } catch (profileError) {
         console.error("Profile creation error:", profileError);
         return NextResponse.redirect(
-          new URL("/auth/login?error=profile_creation_failed", request.url)
+          new URL("/auth/login?error=profile_creation_failed", origin)
         );
       }
 
@@ -81,15 +81,18 @@ export async function GET(request: NextRequest) {
     // 既存のProfileがある場合、ロールチェック
     if (existingProfile.role !== expectedRole) {
       return NextResponse.redirect(
-        new URL(`/auth/login?error=role_mismatch`, origin)
+        new URL("/auth/login?error=role_mismatch", origin)
       );
     }
 
     return NextResponse.redirect(new URL(redirectTo, origin));
   } catch (error) {
     console.error("Callback error:", error);
+    const origin = getSiteOrigin(
+      typeof request.url === "string" ? new URL(request.url).origin : undefined
+    );
     return NextResponse.redirect(
-      new URL("/auth/login?error=callback_error", request.url)
+      new URL("/auth/login?error=callback_error", origin)
     );
   }
 }

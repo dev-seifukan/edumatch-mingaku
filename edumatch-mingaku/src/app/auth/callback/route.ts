@@ -2,13 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { Role } from "@prisma/client";
+import { getSiteOrigin } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
-  const { searchParams, origin } = new URL(request.url);
+  const requestUrl = new URL(request.url);
+  const { searchParams } = requestUrl;
   const code = searchParams.get("code");
   const redirectTo = searchParams.get("redirect_to") || "/dashboard";
+  const origin = getSiteOrigin(requestUrl.origin);
 
   if (code) {
     const supabase = await createClient();
@@ -77,8 +80,8 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // エラーの場合はログインページにリダイレクト
+  // エラーの場合はログインページにリダイレクト（本番URLを使用）
   return NextResponse.redirect(
-    new URL("/login?message=認証に失敗しました。もう一度お試しください。", origin)
+    new URL("/login?message=" + encodeURIComponent("認証に失敗しました。もう一度お試しください。"), origin)
   );
 }

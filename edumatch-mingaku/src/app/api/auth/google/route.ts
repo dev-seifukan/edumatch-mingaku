@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
+import { getSiteOrigin } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
 
@@ -10,10 +11,14 @@ export async function GET(request: NextRequest) {
     const redirectTo = searchParams.get("redirect_to") || "/dashboard";
     const userType = searchParams.get("userType") || "viewer"; // viewer or provider
 
+    // 本番ではNEXT_PUBLIC_SITE_URLを使用（localhostへ飛ばないようにする）
+    const origin = getSiteOrigin(request.nextUrl.origin);
+    const callbackUrl = `${origin}/api/auth/callback?redirect_to=${encodeURIComponent(redirectTo)}&userType=${encodeURIComponent(userType)}`;
+
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${request.nextUrl.origin}/api/auth/callback?redirect_to=${encodeURIComponent(redirectTo)}&userType=${encodeURIComponent(userType)}`,
+        redirectTo: callbackUrl,
         queryParams: {
           access_type: "offline",
           prompt: "consent",
