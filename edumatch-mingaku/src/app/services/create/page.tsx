@@ -29,10 +29,22 @@ export default function ServiceCreatePage() {
   const thumbnailFileInputRef = useRef<HTMLInputElement | null>(null);
   const [userProfile, setUserProfile] = useState<{ name: string; avatar_url: string | null; email: string } | null>(null);
 
-  const wordCount =
-    blocks.reduce((acc, b) => acc + (b.content?.length || 0) + (b.items?.join("").length || 0), 0) +
-    title.length +
-    description.length;
+  // 文字数制限
+  const TITLE_MAX_LENGTH = 80;
+  const DESCRIPTION_MAX_LENGTH = 300;
+  const CONTENT_MAX_LENGTH = 5000;
+  
+  // 文字数カウント
+  const titleLength = title.length;
+  const descriptionLength = description.length;
+  const contentLength = blocks.reduce((acc, b) => acc + (b.content?.length || 0) + (b.items?.join("").length || 0), 0);
+  const totalWordCount = titleLength + descriptionLength + contentLength;
+  
+  // バリデーション
+  const isTitleValid = titleLength <= TITLE_MAX_LENGTH;
+  const isDescriptionValid = descriptionLength <= DESCRIPTION_MAX_LENGTH;
+  const isContentValid = contentLength <= CONTENT_MAX_LENGTH;
+  const canSubmit = isTitleValid && isDescriptionValid && isContentValid && title.trim().length > 0 && description.trim().length > 0;
 
   // ユーザープロフィールを取得
   useEffect(() => {
@@ -54,8 +66,20 @@ export default function ServiceCreatePage() {
       toast.error("サービス名を入力してください");
       return;
     }
+    if (titleLength > TITLE_MAX_LENGTH) {
+      toast.error(`サービス名は${TITLE_MAX_LENGTH}文字以内で入力してください`);
+      return;
+    }
     if (!description.trim()) {
       toast.error("概要を入力してください");
+      return;
+    }
+    if (descriptionLength > DESCRIPTION_MAX_LENGTH) {
+      toast.error(`概要は${DESCRIPTION_MAX_LENGTH}文字以内で入力してください`);
+      return;
+    }
+    if (contentLength > CONTENT_MAX_LENGTH) {
+      toast.error(`本文は${CONTENT_MAX_LENGTH.toLocaleString()}文字以内で入力してください`);
       return;
     }
 
@@ -97,8 +121,8 @@ export default function ServiceCreatePage() {
         <div className="container flex items-center justify-between h-16">
           <div className="flex items-center gap-4">
             <h1 className="text-lg font-semibold">サービスを投稿</h1>
-            <Badge variant="outline" className="text-xs">
-              {wordCount.toLocaleString()} 文字
+            <Badge variant="outline" className={`text-xs ${canSubmit ? "" : "border-destructive text-destructive"}`}>
+              合計: {totalWordCount.toLocaleString()} 文字
             </Badge>
           </div>
           <div className="flex items-center gap-2">
@@ -115,7 +139,7 @@ export default function ServiceCreatePage() {
               )}
               下書き保存
             </Button>
-            <Button size="sm" onClick={() => submit("submit")} disabled={isSubmitting}>
+            <Button size="sm" onClick={() => submit("submit")} disabled={isSubmitting || !canSubmit}>
               {isSubmitting ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : (
@@ -215,17 +239,55 @@ export default function ServiceCreatePage() {
             <CardTitle className="text-base">基本情報</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="サービス名"
-            />
-            <Textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="概要（短い説明）"
-              rows={3}
-            />
+            <div className="space-y-2">
+              <Input
+                value={title}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value.length <= TITLE_MAX_LENGTH) {
+                    setTitle(value);
+                  }
+                }}
+                placeholder="サービス名"
+                maxLength={TITLE_MAX_LENGTH}
+                className={!isTitleValid ? "border-destructive" : ""}
+              />
+              <div className="flex items-center justify-between text-sm">
+                <span className={isTitleValid ? "text-muted-foreground" : "text-destructive"}>
+                  {titleLength} / {TITLE_MAX_LENGTH} 文字
+                </span>
+                {!isTitleValid && (
+                  <span className="text-destructive text-xs">
+                    タイトルは{TITLE_MAX_LENGTH}文字以内で入力してください
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Textarea
+                value={description}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value.length <= DESCRIPTION_MAX_LENGTH) {
+                    setDescription(value);
+                  }
+                }}
+                placeholder="概要（短い説明）"
+                rows={3}
+                maxLength={DESCRIPTION_MAX_LENGTH}
+                className={!isDescriptionValid ? "border-destructive" : ""}
+              />
+              <div className="flex items-center justify-between text-sm">
+                <span className={isDescriptionValid ? "text-muted-foreground" : "text-destructive"}>
+                  {descriptionLength} / {DESCRIPTION_MAX_LENGTH} 文字
+                </span>
+                {!isDescriptionValid && (
+                  <span className="text-destructive text-xs">
+                    概要は{DESCRIPTION_MAX_LENGTH}文字以内で入力してください
+                  </span>
+                )}
+              </div>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <Input
                 value={category}
@@ -248,10 +310,20 @@ export default function ServiceCreatePage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">詳細（本文）</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base">詳細（本文）</CardTitle>
+              <div className={`text-sm ${isContentValid ? "text-muted-foreground" : "text-destructive"}`}>
+                {contentLength.toLocaleString()} / {CONTENT_MAX_LENGTH.toLocaleString()} 文字
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
-            <BlockEditor blocks={blocks} onChange={setBlocks} />
+            <BlockEditor blocks={blocks} onChange={setBlocks} maxLength={CONTENT_MAX_LENGTH} />
+            {!isContentValid && (
+              <p className="text-destructive text-sm mt-2">
+                本文は{CONTENT_MAX_LENGTH.toLocaleString()}文字以内で入力してください
+              </p>
+            )}
           </CardContent>
         </Card>
 

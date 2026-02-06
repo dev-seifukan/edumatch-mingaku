@@ -166,8 +166,18 @@ export default function ArticleCreatePage() {
       return;
     }
     
+    if (titleLength > TITLE_MAX_LENGTH) {
+      toast.error(`タイトルは${TITLE_MAX_LENGTH}文字以内で入力してください`);
+      return;
+    }
+    
     if (blocks.length === 0) {
       toast.error("本文を入力してください");
+      return;
+    }
+    
+    if (contentLength > CONTENT_MAX_LENGTH) {
+      toast.error(`本文は${CONTENT_MAX_LENGTH.toLocaleString()}文字以内で入力してください`);
       return;
     }
     
@@ -265,7 +275,14 @@ export default function ArticleCreatePage() {
     }
   };
 
-  const wordCount = blocks.reduce((acc, block) => {
+  // 文字数制限
+  const TITLE_MAX_LENGTH = 80;
+  const CONTENT_MAX_LENGTH = 10000;
+  
+  // 文字数カウント
+  const titleLength = title.length;
+  const leadTextLength = leadText.length;
+  const contentLength = blocks.reduce((acc, block) => {
     if (block.content) {
       return acc + block.content.length;
     }
@@ -273,7 +290,13 @@ export default function ArticleCreatePage() {
       return acc + block.items.join("").length;
     }
     return acc;
-  }, 0) + title.length + leadText.length;
+  }, 0);
+  const totalWordCount = titleLength + leadTextLength + contentLength;
+  
+  // バリデーション
+  const isTitleValid = titleLength <= TITLE_MAX_LENGTH;
+  const isContentValid = contentLength <= CONTENT_MAX_LENGTH;
+  const canSubmit = isTitleValid && isContentValid && title.trim().length > 0 && blocks.length > 0;
 
   const renderPreview = () => {
     return (
@@ -481,8 +504,8 @@ export default function ArticleCreatePage() {
             </Badge>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground">
-              {wordCount.toLocaleString()} 文字
+            <span className={`text-sm ${canSubmit ? "text-muted-foreground" : "text-destructive"}`}>
+              合計: {totalWordCount.toLocaleString()} 文字
             </span>
             <Button variant="ghost" size="sm" onClick={clearDraft}>
               クリア
@@ -503,7 +526,7 @@ export default function ArticleCreatePage() {
               )}
               下書き保存
             </Button>
-            <Button size="sm" onClick={handlePublish} disabled={isSubmitting}>
+            <Button size="sm" onClick={handlePublish} disabled={isSubmitting || !canSubmit}>
               {isSubmitting ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : (
@@ -629,36 +652,71 @@ export default function ArticleCreatePage() {
                 {/* Title */}
                 <Card>
                   <CardContent className="pt-6">
-                    <input
-                      type="text"
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
-                      placeholder="記事タイトルを入力..."
-                      className="w-full text-3xl font-bold bg-transparent outline-none border-none"
-                    />
+                    <div className="space-y-2">
+                      <input
+                        type="text"
+                        value={title}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value.length <= TITLE_MAX_LENGTH) {
+                            setTitle(value);
+                          }
+                        }}
+                        placeholder="記事タイトルを入力..."
+                        className={`w-full text-3xl font-bold bg-transparent outline-none border-none ${
+                          !isTitleValid ? "text-destructive" : ""
+                        }`}
+                        maxLength={TITLE_MAX_LENGTH}
+                      />
+                      <div className="flex items-center justify-between text-sm">
+                        <span className={isTitleValid ? "text-muted-foreground" : "text-destructive"}>
+                          {titleLength} / {TITLE_MAX_LENGTH} 文字
+                        </span>
+                        {!isTitleValid && (
+                          <span className="text-destructive text-xs">
+                            タイトルは{TITLE_MAX_LENGTH}文字以内で入力してください
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
 
                 {/* Lead text */}
                 <Card>
                   <CardContent className="pt-6">
-                    <Textarea
-                      value={leadText}
-                      onChange={(e) => setLeadText(e.target.value)}
-                      placeholder="リード文（概要）を入力..."
-                      className="border-none shadow-none resize-none text-lg text-muted-foreground focus-visible:ring-0"
-                      rows={3}
-                    />
+                    <div className="space-y-2">
+                      <Textarea
+                        value={leadText}
+                        onChange={(e) => setLeadText(e.target.value)}
+                        placeholder="リード文（概要）を入力..."
+                        className="border-none shadow-none resize-none text-lg text-muted-foreground focus-visible:ring-0"
+                        rows={3}
+                      />
+                      <div className="text-sm text-muted-foreground">
+                        {leadTextLength.toLocaleString()} 文字
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
 
                 {/* Block editor */}
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-base">本文</CardTitle>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-base">本文</CardTitle>
+                      <div className={`text-sm ${isContentValid ? "text-muted-foreground" : "text-destructive"}`}>
+                        {contentLength.toLocaleString()} / {CONTENT_MAX_LENGTH.toLocaleString()} 文字
+                      </div>
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    <BlockEditor blocks={blocks} onChange={setBlocks} />
+                    <BlockEditor blocks={blocks} onChange={setBlocks} maxLength={CONTENT_MAX_LENGTH} />
+                    {!isContentValid && (
+                      <p className="text-destructive text-sm mt-2">
+                        本文は{CONTENT_MAX_LENGTH.toLocaleString()}文字以内で入力してください
+                      </p>
+                    )}
                   </CardContent>
                 </Card>
               </TabsContent>

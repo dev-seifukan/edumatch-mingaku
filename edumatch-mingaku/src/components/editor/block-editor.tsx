@@ -55,6 +55,7 @@ export interface ContentBlock {
 interface BlockEditorProps {
   blocks: ContentBlock[];
   onChange: (blocks: ContentBlock[]) => void;
+  maxLength?: number; // 全体の文字数制限（オプション）
 }
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
@@ -72,12 +73,25 @@ const blockTypeLabels: Record<BlockType, string> = {
   numberedList: "番号付きリスト",
 };
 
-export function BlockEditor({ blocks, onChange }: BlockEditorProps) {
+export function BlockEditor({ blocks, onChange, maxLength }: BlockEditorProps) {
   const [activeBlockId, setActiveBlockId] = useState<string | null>(null);
   const [showBlockMenu, setShowBlockMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState<number | null>(null);
   const [uploadingBlockId, setUploadingBlockId] = useState<string | null>(null);
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  
+  // 全体の文字数を計算
+  const calculateTotalLength = useCallback((blocksToCheck: ContentBlock[]) => {
+    return blocksToCheck.reduce((acc, block) => {
+      if (block.content) {
+        return acc + block.content.length;
+      }
+      if (block.items) {
+        return acc + block.items.join("").length;
+      }
+      return acc;
+    }, 0);
+  }, []);
 
   const addBlock = useCallback(
     (type: BlockType, index: number) => {
@@ -100,9 +114,24 @@ export function BlockEditor({ blocks, onChange }: BlockEditorProps) {
 
   const updateBlock = useCallback(
     (id: string, updates: Partial<ContentBlock>) => {
-      onChange(blocks.map((b) => (b.id === id ? { ...b, ...updates } : b)));
+      const updatedBlocks = blocks.map((b) => (b.id === id ? { ...b, ...updates } : b));
+      
+      // 文字数制限がある場合、全体の文字数をチェック
+      if (maxLength !== undefined) {
+        const currentLength = calculateTotalLength(updatedBlocks);
+        // 制限を超える場合は、変更を適用しない（ただし、削除や短縮の場合は許可）
+        if (currentLength > maxLength) {
+          const oldLength = calculateTotalLength(blocks);
+          // 文字数が増加している場合のみ制限を適用
+          if (currentLength > oldLength) {
+            return; // 変更を適用しない
+          }
+        }
+      }
+      
+      onChange(updatedBlocks);
     },
-    [blocks, onChange]
+    [blocks, onChange, maxLength, calculateTotalLength]
   );
 
   const deleteBlock = useCallback(
